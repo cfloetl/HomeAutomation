@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<title>
+			AutoHome v0.0.0.1?
+		</title>
+		<script type="text/javascript">
+			
+			var Relays = [];
+			
+			function SendAction(RelayId, RelayValue)
+			{
+				var SendString = "";
+				
+				if (RelayId != null)
+				{
+					SendString = 
+						"RelayId=" + RelayId +
+						"&RelayValue=" + RelayValue;
+					//alert(SendString);
+				}
+				
+				var xmlhttp;
+				
+				if (window.XMLHttpRequest)
+				{
+					// code for IE7+, Firefox, Chrome, Opera, Safari
+					xmlhttp=new XMLHttpRequest();
+				}
+				else
+				{
+					// code for IE6, IE5
+					xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+				}
+				
+				xmlhttp.onreadystatechange=function()
+				{
+					if (xmlhttp.readyState==4 && xmlhttp.status==200)
+					{
+						//alert(xmlhttp.responseText);
+						var Results = JSON.parse(xmlhttp.responseText);
+						Relays = Results.Relay;
+						//alert(xmlhttp.responseText);
+						//else{$("spanMessage").innerHTML = "There was an error. " + xmlhttp.responseText;}
+						GenerateRelayList();
+					}
+				}
+
+				xmlhttp.open("GET", "Relays.php?" + SendString, true);
+				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xmlhttp.send();
+			}
+			
+			function $(id) 
+			{ 
+				return document.getElementById(id); 
+			}  
+			
+			function GenerateRelayList()
+			{
+				var innerHTML = 
+					'<table border="1">' + 
+						'<tr>' +
+							'<th> Id </th>' +
+							'<th> Name </th>' +
+							'<th> State </th>' +
+							'<th>  </th>' +
+						'</tr>';
+				
+				for (var r = 0; r < Relays.length; r++)
+				{
+					innerHTML += '<tr>';
+					innerHTML += '<td>' + Relays[r].Id + '</td>';
+					innerHTML += '<td>' + Relays[r].Name + '</td>';
+					innerHTML += '<td>' + Relays[r].State + '</td>';
+					innerHTML += '<td><button type="button" style="background-color: ' + (Relays[r].State == '1'? 'rgb(224,224,224)': 'rgb(160,160,160)') + ';" onclick="SendAction(' + Relays[r].Id + ', ' + (Relays[r].State == '1'? '0' : '1') + ');">' + Relays[r].Name + '</button></td>';
+					innerHTML += '</tr>';
+				}
+				
+				innerHTML += '</table>';
+				
+				
+				$("divRelayTable").innerHTML = innerHTML;
+			}
+		</script>
+	</head>
+	<body onload="GenerateRelayList(); SendAction(null, null);">
+		test?
+		<div id="divRelayTable">
+		</div>
+		
+	
+	</body>
+</html>
